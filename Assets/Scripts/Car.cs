@@ -1,5 +1,7 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Car : MonoBehaviour
@@ -15,34 +17,58 @@ public class Car : MonoBehaviour
     [SerializeField] private float turnDeceleration = 300f;
 
     [Header("Off-road settings")]
-    [Tooltip("Layer(s) considered 'road' — make sure your road GameObjects are on this layer.")]
+    [Tooltip("Layer(s) considered 'road' ï¿½ make sure your road GameObjects are on this layer.")]
     [SerializeField] private LayerMask roadLayer = 0;
     [Range(0.1f, 1f)][SerializeField] private float offroadSpeedMultiplier = 0.6f;
     [Range(0.1f, 1f)][SerializeField] private float offroadAccelMultiplier = 0.6f;
     [Range(0.1f, 1f)][SerializeField] private float offroadTurnMultiplier = 0.75f;
 
+    [Header("Nitro Settings")]
+    public float currentNitro = 0f;
+    public float nitroBoost = 1.5f;
+    public float nitroBurnRate = 15f;
+    public float maxNitro = 25f;
+    public Image nitroFrontBar;
+    public Image nitroBackBar;
+    public float catchUpDelay = 0.5f;
+    public float catchUpSpeed = 5f;
+
     [SerializeField] private InputActionReference moveAction;
+    [SerializeField] private InputActionReference nitroAction;
 
     private Rigidbody2D rb;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        nitroFrontBar.fillAmount = currentNitro / maxNitro;
+        nitroBackBar.fillAmount = currentNitro / maxNitro;
     }
 
     private void OnEnable()
     {
         if (moveAction != null) moveAction.action.Enable();
+        if (nitroAction != null) nitroAction.action.Enable();
     }
 
     private void OnDisable()
     {
         if (moveAction != null) moveAction.action.Disable();
+        if (nitroAction != null) nitroAction.action.Disable();
     }
 
     private void FixedUpdate()
     {
         Vector2 input = moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
+        bool nitroPressed = nitroAction != null && nitroAction.action.ReadValue<float>() > 0.5f;
+
+        if (nitroPressed)
+        {
+            HandleNitro();
+            UseNitro();
+        }
+
         float turnInput = -input.x;
 
         // check if car is on the road (checks a point at the car's position)
@@ -71,5 +97,54 @@ public class Car : MonoBehaviour
 
         float accel = (Mathf.Approximately(turnInput, 0f) ? turnDeceleration : turnAcceleration) * currentTurnAccelMultiplier;
         rb.angularVelocity = Mathf.MoveTowards(rb.angularVelocity, targetAngular, accel * Time.fixedDeltaTime);
+    }
+
+    public static IEnumerator setCarSlow(float speed,float duration)
+    {
+        Car car = FindObjectOfType<Car>();
+        if (car != null && car.rb != null)
+        {
+            float originalSpeed = car.rb.linearVelocity.magnitude;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                car.rb.linearVelocity = car.rb.linearVelocity.normalized * Mathf.Lerp(originalSpeed, speed, elapsed / duration);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+            car.rb.linearVelocity = car.rb.linearVelocity.normalized * speed;
+        }
+    }
+
+    public void HandleNitro()
+    {
+        nitroFrontBar.fillAmount = currentNitro/ maxNitro;
+        if (nitroBackBar.fillAmount < nitroFrontBar.fillAmount)
+        {
+            nitroBackBar.fillAmount = currentNitro/ maxNitro;
+        }
+        else
+        {
+            nitroBackBar.fillAmount = Mathf.Lerp(
+                nitroBackBar.fillAmount,
+                currentNitro / maxNitro,
+                Time.deltaTime * catchUpSpeed
+            );
+        }
+    }
+
+    public void AddNitro(float amount)
+    {
+        currentNitro = Mathf.Clamp(currentNitro + amount, 0f, maxNitro);
+    }
+    public bool UseNitro()
+    {
+        if (currentNitro > 0f)
+        {
+            currentNitro -= nitroBurnRate * Time.fixedDeltaTime;
+            rb.AddForce(transform.up * acceleration * nitroBoost, ForceMode2D.Force);
+            return true;
+        }
+        return false;
     }
 }

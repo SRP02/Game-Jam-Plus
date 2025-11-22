@@ -1,10 +1,58 @@
 fileFormatVersion: 2
-guid: ba2ae7db6d1e0864ca5d8958fb69423f
+guid: d68aa1e331ef2ae4292958f64382819d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8012759797531359418
-    second: OIP-2523218281-1 - Copy_0
+      213: 9188285553214918012
+    second: guage bar_0
+  - first:
+      213: 5994973703712531651
+    second: guage bar_1
+  - first:
+      213: -8576766564081102651
+    second: guage bar_2
+  - first:
+      213: -1561148890261213212
+    second: guage bar_3
+  - first:
+      213: -6335714787038186853
+    second: guage bar_4
+  - first:
+      213: 6063494147641339826
+    second: guage bar_5
+  - first:
+      213: -7536928984115443924
+    second: guage bar_6
+  - first:
+      213: 3591427696491020949
+    second: guage bar_7
+  - first:
+      213: 6369056196245087734
+    second: guage bar_8
+  - first:
+      213: -8153132396456640798
+    second: guage bar_9
+  - first:
+      213: -1815957547082385987
+    second: guage bar_10
+  - first:
+      213: 2298577599890080226
+    second: guage bar_11
+  - first:
+      213: 5312186593117305569
+    second: guage bar_12
+  - first:
+      213: 2784564403435464005
+    second: guage bar_13
+  - first:
+      213: -4528583873465655296
+    second: guage bar_14
+  - first:
+      213: 1140547086957298991
+    second: guage bar_15
+  - first:
+      213: -2248906597701739527
+    second: guage bar_16
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -110,7 +158,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: WindowsStoreApps
+    buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -123,7 +171,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: WebGL
+    buildTarget: WindowsStoreApps
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -139,23 +187,67 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: OIP-2523218281-1 - Copy_0
+      name: guage bar_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 474
-        height: 474
+        x: 3
+        y: 67
+        width: 121
+        height: 26
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 647cc95ea65fcc090800000000000000
-      internalID: -8012759797531359418
+      spriteID: c7d8a3e6709538f70800000000000000
+      internalID: 9188285553214918012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guage bar_8
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 36
+        width: 119
+        height: 24
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f560b3adde636850800000000000000
+      internalID: 6369056196245087734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guage bar_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 127
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fb94f65d574ac0e0800000000000000
+      internalID: -2248906597701739527
       vertices: []
       indices: 
       edges: []
@@ -164,7 +256,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 12e09e43260e9d54dba520e52e85fb65
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +266,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      OIP-2523218281-1 - Copy_0: -8012759797531359418
+      guage bar_0: 9188285553214918012
+      guage bar_16: -2248906597701739527
+      guage bar_8: 6369056196245087734
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
