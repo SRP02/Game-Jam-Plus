@@ -832,15 +832,15 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.0007320644
+    x: 0
     y: 0
-    width: 0.9985359
+    width: 1
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 6
+  orthographic size: 4.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1358,8 +1358,8 @@ MonoBehaviour:
     Color: {r: 1, g: 0, b: 0, a: 1}
   decayRate: 3
   comboTimeout: 10
-  TopCorner: {fileID: 0}
-  BottomCorner: {fileID: 0}
+  TopCorner: {fileID: 1790727717895400784}
+  BottomCorner: {fileID: 1790727717895400785}
   transitionSpeed: 1
   transitionValue: 0
 --- !u!114 &2062635320 stripped
@@ -1565,6 +1565,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5930b439d0861ba4395611be3906d4ab, type: 3}
+--- !u!114 &1790727717895400784 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1415335051676696454, guid: 5930b439d0861ba4395611be3906d4ab, type: 3}
+  m_PrefabInstance: {fileID: 1790727717895400783}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1790727717895400785 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 524909637049962662, guid: 5930b439d0861ba4395611be3906d4ab, type: 3}
+  m_PrefabInstance: {fileID: 1790727717895400783}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &6787582768490849540
 PrefabInstance:
   m_ObjectHideFlags: 0
