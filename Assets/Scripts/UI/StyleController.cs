@@ -46,7 +46,6 @@ public class StyleController : MonoBehaviour
 
         if (timeSinceLastAction < comboTimeout)
         {
-            currentPoints -= decayRate * Time.deltaTime;
             currentPoints = Mathf.Max(0, currentPoints);
             UpdateRankUI();
         }
@@ -158,6 +157,10 @@ public class StyleController : MonoBehaviour
 
     public float GetCurrentMultiplier()
     {
+        if (currentRankIndex <0)
+        {
+            return 1f;
+        }
         return StyleRanks[currentRankIndex].Multiplier;
     }
 

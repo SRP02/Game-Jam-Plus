@@ -11,7 +11,7 @@ public class Diaper : MonoBehaviour
     public float acceleration = 5f;      // how fast it blends to higher speed
 
     private Rigidbody2D rb;
-    public Car car;
+    private Car car;
 
     private void Start()
     {
