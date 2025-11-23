@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Race.Utility.PoolingSystem; // for PoolingManager
 
 [RequireComponent(typeof(Transform))]
 public class MapManager : MonoBehaviour
@@ -8,6 +9,7 @@ public class MapManager : MonoBehaviour
     [SerializeField] private Transform player;
 
     [Header("Road Sprite")]
+    [SerializeField] private Color roadColor = Color.white;
     [SerializeField] private Sprite roadSprite;
     [SerializeField] private float roadWorldWidth = 4f;
     [SerializeField] private bool tileTextureAlongLength = true;
@@ -28,15 +30,25 @@ public class MapManager : MonoBehaviour
     [Tooltip("Name of layer to assign to each generated road GameObject. Create this layer in the editor (e.g. 'Road').")]
     [SerializeField] private string roadLayerName = "Road";
 
+    [Header("Collider Settings")]
+    [SerializeField] private float colliderSidePadding = 0.25f;
+
+    [Header("Pooling (optional)")]
+    [Tooltip("Assign a prefab to enable pooling. Prefab isn't required — pooling will be skipped if null.")]
+    [SerializeField] private GameObject roadSegmentPrefab;
+    [SerializeField] private bool usePooling = true;
+
     private readonly List<RoadSegment> segments = new();
     private float lastY;
     private float noiseSeed;
 
-    // --- store previous segment samples so the spline continues smoothly ---
-    private Vector3 prevSegmentSecondToLastSample;
+    // --- FIXED VARIABLES ---
+    // Stores the second-to-last control point of the previous segment (P0 for the next spline)
+    private Vector3 prevSegmentSecondToLastControlPoint;
+    // Stores the last sample point for perfect vertex snapping between meshes
     private Vector3 prevSegmentLastSample;
     private bool hasPrevSegment = false;
-    // --- END ---
+    // ---------------------
 
     private class RoadSegment
     {
@@ -66,16 +78,12 @@ public class MapManager : MonoBehaviour
             return;
         }
 
-        // Apply initial Y offset so the first segment spawns higher/lower
         lastY = player.position.y + initialYOffset;
-
         noiseSeed = Random.Range(0f, 1000f);
 
-        // pre-generate starting segments
         for (int i = 0; i < 3; i++)
             GenerateSegment();
     }
-
 
     private void Update()
     {
@@ -86,13 +94,20 @@ public class MapManager : MonoBehaviour
         if (playerY + segmentLength * 1.5f > lastY)
             GenerateSegment();
 
-        // cull old segments
         if (segments.Count > keepSegments)
         {
             var seg = segments[0];
             if (playerY > seg.endY + 20f)
             {
-                Destroy(seg.go);
+                if (usePooling && roadSegmentPrefab != null && PoolingManager.Instance != null)
+                {
+                    PoolingManager.Instance.Despawn(seg.go);
+                }
+                else
+                {
+                    Destroy(seg.go);
+                }
+
                 segments.RemoveAt(0);
             }
         }
@@ -103,7 +118,6 @@ public class MapManager : MonoBehaviour
         float startY = lastY;
         float endY = startY + segmentLength;
 
-        // 1. Build coarse control points
         Vector3[] control = new Vector3[controlPoints];
         for (int i = 0; i < controlPoints; i++)
         {
@@ -114,17 +128,16 @@ public class MapManager : MonoBehaviour
             control[i] = new Vector3(x, y, 0f);
         }
 
-        // 2. Sample spline densely
         List<Vector3> samples = new List<Vector3>();
         for (int i = 0; i < controlPoints - 1; i++)
         {
             Vector3 p0;
+            // FIX: Use the stored Control Point for Catmull-Rom continuity
             if (i == 0)
             {
                 if (hasPrevSegment)
                 {
-                    // use previously stored sample so the new segment is smooth with the earlier segment
-                    p0 = prevSegmentSecondToLastSample;
+                    p0 = prevSegmentSecondToLastControlPoint;
                 }
                 else
                 {
@@ -132,9 +145,7 @@ public class MapManager : MonoBehaviour
                 }
             }
             else
-            {
                 p0 = control[i - 1];
-            }
 
             Vector3 p1 = control[i];
             Vector3 p2 = control[i + 1];
@@ -145,82 +156,115 @@ public class MapManager : MonoBehaviour
                 float tt = s / (float)(smoothPointsPerSegment - 1);
                 Vector3 pt = CatmullRom(p0, p1, p2, p3, tt);
 
-                // Avoid duplicating points at seams (except for very last point of segment)
-                if (s == smoothPointsPerSegment - 1 && i < controlPoints - 2) continue;
+                if (s == smoothPointsPerSegment - 1 && i < controlPoints - 2)
+                    continue;
 
                 samples.Add(pt);
             }
         }
 
-        // Ensure exact positional continuity with previous segment
+        // Snap the first vertex to the exact end of the previous mesh to avoid pixel gaps
         if (hasPrevSegment && samples.Count > 0)
             samples[0] = prevSegmentLastSample;
 
-        // store samples for next segment continuity (grab last two samples from this segment)
+        // --- UPDATE STATE FOR NEXT SEGMENT ---
+        if (controlPoints >= 2)
+        {
+            // Store the second-to-last control point for the next segment's P0
+            prevSegmentSecondToLastControlPoint = control[controlPoints - 2];
+        }
+
         if (samples.Count >= 2)
         {
-            prevSegmentSecondToLastSample = samples[Mathf.Max(0, samples.Count - 2)];
             prevSegmentLastSample = samples[samples.Count - 1];
             hasPrevSegment = true;
         }
+        // -------------------------------------
 
-        // 3. Build Mesh
-        GameObject go = new GameObject("RoadSegment");
-        go.transform.parent = transform;
-        go.transform.localPosition = Vector3.zero;
-        go.transform.localRotation = Quaternion.identity;
-        go.transform.localScale = Vector3.one;
+        GameObject go = null;
+        bool spawnedFromPool = false;
 
-        MeshFilter mf = go.AddComponent<MeshFilter>();
-        MeshRenderer mr = go.AddComponent<MeshRenderer>();
+        if (usePooling && roadSegmentPrefab != null && PoolingManager.Instance != null)
+        {
+            go = PoolingManager.Instance.Spawn(roadSegmentPrefab, Vector3.zero, Quaternion.identity, transform, true);
+            spawnedFromPool = true;
+        }
+        else
+        {
+            go = new GameObject("RoadSegment");
+            go.transform.parent = transform;
+            go.transform.localPosition = Vector3.zero;
+        }
+
+        MeshFilter mf = go.GetComponent<MeshFilter>();
+        if (mf == null) mf = go.AddComponent<MeshFilter>();
+
+        MeshRenderer mr = go.GetComponent<MeshRenderer>();
+        if (mr == null) mr = go.AddComponent<MeshRenderer>();
 
         Mesh mesh = new Mesh();
         mesh.name = "RoadMesh";
         int n = samples.Count;
 
-        if (n < 2) { Destroy(go); return; }
+        if (n < 2)
+        {
+            if (spawnedFromPool && PoolingManager.Instance != null)
+                PoolingManager.Instance.Despawn(go);
+            else if (!spawnedFromPool)
+                Destroy(go);
+
+            return;
+        }
 
         Vector3[] verts = new Vector3[n * 2];
         Vector2[] uvs = new Vector2[n * 2];
         int[] tris = new int[(n - 1) * 6];
+
         float halfWidth = roadWorldWidth * 0.5f;
 
         float[] cumLen = new float[n];
-        cumLen[0] = 0f;
         for (int i = 1; i < n; i++)
             cumLen[i] = cumLen[i - 1] + Vector3.Distance(samples[i], samples[i - 1]);
 
-        float totalLen = cumLen[n - 1] > 0f ? cumLen[n - 1] : 1f;
+        float totalLen = Mathf.Max(1f, cumLen[n - 1]);
+
+        // FIX 2: TEXTURE WRAPPING (UV Inset)
+        // Pull the UVs in slightly from the edge (0.0 and 1.0) to prevent texture bleeding.
+        float uvInset = 0.01f;
 
         for (int i = 0; i < n; i++)
         {
             Vector3 p = samples[i];
             Vector3 tangent;
 
+            // CORRECTED TANGENT LOGIC (using proper if/else structure)
             if (i == 0)
             {
-                if (hasPrevSegment)
-                {
-                    tangent = (samples[0] - prevSegmentSecondToLastSample).normalized;
-                }
-                else tangent = (samples[i + 1] - samples[i]).normalized;
+                // Start of segment: Forward difference
+                tangent = (samples[i + 1] - samples[i]).normalized;
             }
-            else if (i == n - 1) tangent = (samples[i] - samples[i - 1]).normalized;
-            else tangent = (samples[i + 1] - samples[i - 1]).normalized;
+            else if (i == n - 1)
+            {
+                // End of segment: Backward difference
+                tangent = (samples[i] - samples[i - 1]).normalized;
+            }
+            else
+            {
+                // Middle of segment: Central difference
+                tangent = (samples[i + 1] - samples[i - 1]).normalized;
+            }
+            // END CORRECTED TANGENT LOGIC
 
             Vector3 normal = new Vector3(-tangent.y, tangent.x, 0f).normalized;
 
             verts[i * 2 + 0] = p + normal * halfWidth;
             verts[i * 2 + 1] = p - normal * halfWidth;
 
-            float v;
-            if (tileTextureAlongLength)
-                v = cumLen[i] * textureRepeatPerUnit;
-            else
-                v = cumLen[i] / totalLen;
+            float v = tileTextureAlongLength ? cumLen[i] * textureRepeatPerUnit : cumLen[i] / totalLen;
 
-            uvs[i * 2 + 0] = new Vector2(0f, v);
-            uvs[i * 2 + 1] = new Vector2(1f, v);
+            // Apply the UV Inset here
+            uvs[i * 2 + 0] = new Vector2(uvInset, v);
+            uvs[i * 2 + 1] = new Vector2(1f - uvInset, v);
         }
 
         int ti = 0;
@@ -242,89 +286,59 @@ public class MapManager : MonoBehaviour
         mesh.RecalculateBounds();
         mf.mesh = mesh;
 
-        // ---------------------------
-        // Material / Sprite-Lit setup
-        // ---------------------------
-        Material matToUse = null;
+        Material matToUse = roadMaterial != null
+            ? new Material(roadMaterial)
+            : new Material(Shader.Find("Sprites/Default"));
 
-        if (roadMaterial != null)
-        {
-            // Use assigned material (recommended: a Sprite-Lit material)
-            matToUse = new Material(roadMaterial);
-        }
-        else
-        {
-            // Try common sprite-lit shaders (URP 2D Lit first, then built-in Sprites/Lit), fallback to Sprites/Default
-            Shader litURP = Shader.Find("Universal Render Pipeline/2D/Sprite-Lit-Default");
-            Shader litBuiltIn = Shader.Find("Sprites/Lit");
-            Shader fallback = Shader.Find("Sprites/Default");
-
-            Shader chosen = litURP ? litURP : (litBuiltIn ? litBuiltIn : fallback);
-            matToUse = new Material(chosen);
-        }
-
-        // Assign the sprite texture and set tiling/offset if needed
         if (roadSprite != null)
         {
             matToUse.mainTexture = roadSprite.texture;
-            // If using sprite atlases or textureRect, map UVs via _MainTex_ST if shader supports it
             Rect texRect = roadSprite.textureRect;
             Vector2 texSize = new Vector2(roadSprite.texture.width, roadSprite.texture.height);
             Vector2 uvOffset = new Vector2(texRect.x / texSize.x, texRect.y / texSize.y);
             Vector2 uvScale = new Vector2(texRect.width / texSize.x, texRect.height / texSize.y);
 
-            // Many sprite shaders read _MainTex and use _MainTex_ST for tiling/offset.
             matToUse.SetTexture("_MainTex", roadSprite.texture);
             matToUse.SetVector("_MainTex_ST", new Vector4(uvScale.x, uvScale.y, uvOffset.x, uvOffset.y));
         }
+        matToUse.color = roadColor;
 
         mr.sharedMaterial = matToUse;
-        mr.sortingOrder = 0;
 
-        // ---------------------------
-        // Add PolygonCollider2D and set layer
-        // ---------------------------
-
-        // Set layer (make sure the layer exists in the project)
         int layer = LayerMask.NameToLayer(roadLayerName);
-        if (layer == -1)
-        {
-            Debug.LogWarning($"MapManager: Layer '{roadLayerName}' does not exist. Please add it in Tags & Layers. Road GameObject will keep default layer.");
-        }
-        else
-        {
+        if (layer != -1)
             go.layer = layer;
-        }
 
-        // Build collider points following the mesh edges (clockwise or counter-clockwise)
-        // NOTE: PolygonCollider2D expects local-space Vector2[] points forming a single closed loop.
-        PolygonCollider2D poly = go.AddComponent<PolygonCollider2D>();
-
-        // Prepare points: left edge from start->end, then right edge from end->start (reversed)
+        PolygonCollider2D poly = go.GetComponent<PolygonCollider2D>();
+        if (poly == null) poly = go.AddComponent<PolygonCollider2D>();
         Vector2[] colliderPoints = new Vector2[n * 2];
 
-        // left side (verts[0], verts[2], verts[4], ...)
         for (int i = 0; i < n; i++)
         {
-            Vector3 v = verts[i * 2 + 0]; // left
-            colliderPoints[i] = new Vector2(v.x, v.y);
-        }
+            Vector3 left = verts[i * 2 + 0];
+            Vector3 right = verts[i * 2 + 1];
 
-        // right side reversed (verts[1], verts[3], ... reversed)
-        for (int i = 0; i < n; i++)
-        {
-            Vector3 v = verts[(n - 1 - i) * 2 + 1]; // right side reversed
-            colliderPoints[n + i] = new Vector2(v.x, v.y);
+            Vector3 sideNormal = (left - right).normalized;
+
+            left += sideNormal * colliderSidePadding;
+            right -= sideNormal * colliderSidePadding;
+
+            colliderPoints[i] = new Vector2(left.x, left.y);
+            colliderPoints[n + (n - 1 - i)] = new Vector2(right.x, right.y);
         }
 
         poly.points = colliderPoints;
 
-        // optional: make collider used by physics queries immediately
-#if UNITY_EDITOR
-        UnityEditor.EditorUtility.SetDirty(poly);
-#endif
+        if (spawnedFromPool)
+        {
+            go.transform.SetParent(transform, true);
+            go.transform.localPosition = Vector3.zero;
+        }
+        else
+        {
+            go.name = "RoadSegment";
+        }
 
-        // add to segment list
         segments.Add(new RoadSegment { go = go, startY = startY, endY = endY });
         lastY = endY;
     }

@@ -435,7 +435,7 @@ GameObject:
   - component: {fileID: 881877443}
   - component: {fileID: 881877444}
   - component: {fileID: 881877445}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Diaper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -552,6 +552,7 @@ MonoBehaviour:
   maxSpeed: 20
   accelerateDistance: 10
   acceleration: 50
+  car: {fileID: 0}
 --- !u!50 &881877444
 Rigidbody2D:
   serializedVersion: 5
@@ -748,7 +749,7 @@ MonoBehaviour:
   maxSpeed: 8
   acceleration: 8
   deceleration: 1
-  maxTurnSpeed: 150
+  maxTurnSpeed: 200
   turnAcceleration: 800
   turnDeceleration: 500
   roadLayer:
@@ -769,7 +770,7 @@ MonoBehaviour:
   nitroTxt: {fileID: 0}
   flickerRate: 0.2
   moveAction: {fileID: -1680190386980627800, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
-  nitroAction: {fileID: 0}
+  nitroAction: {fileID: -3640193725707687625, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
 --- !u!1001 &1141881342
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -965,11 +966,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7489528778816547902, guid: 641941f267331ae4b890118079d37270, type: 3}
       propertyPath: roadWorldWidth
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7489528778816547902, guid: 641941f267331ae4b890118079d37270, type: 3}
       propertyPath: colliderSidePadding
-      value: -0.8
+      value: -0.9
       objectReference: {fileID: 0}
     - target: {fileID: 7489528778816547902, guid: 641941f267331ae4b890118079d37270, type: 3}
       propertyPath: textureRepeatPerUnit
@@ -1609,7 +1610,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1633009114}
   - component: {fileID: 1633009115}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Light 2D
   m_TagString: Untagged
   m_Icon: {fileID: 0}

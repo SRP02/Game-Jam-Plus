@@ -11,15 +11,21 @@ public class Diaper : MonoBehaviour
     public float acceleration = 5f;      // how fast it blends to higher speed
 
     private Rigidbody2D rb;
+    public Car car;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        car = player.GetComponent<Car>();
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        car.OnGameOver();
+    }
     private void FixedUpdate()
     {
-        if (player == null) return;
+        if (!player.gameObject.activeSelf) return;
 
         // Target with a small Y offset
         Vector2 targetPos = player.position;
@@ -44,7 +50,7 @@ public class Diaper : MonoBehaviour
 
         // Clamp speed so it never exceeds max
         targetSpeed = Mathf.Min(targetSpeed, maxSpeed);
-
+        transform.rotation = Quaternion.LookRotation(Vector3.forward, dir);
         // Move using Rigidbody2D velocity (more stable for constant motion)
         rb.linearVelocity = dir * targetSpeed;
     }

@@ -58,6 +58,11 @@ public class Car : MonoBehaviour
         if (nitroAction != null) nitroAction.action.Enable();
     }
 
+    public void OnGameOver()
+    {
+        transform.gameObject.SetActive(false);
+    }
+
     private void OnDisable()
     {
         if (moveAction != null) moveAction.action.Disable();
