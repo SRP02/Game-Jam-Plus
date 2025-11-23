@@ -25,4 +25,10 @@ MonoBehaviour:
     loop: 0
     playOnAwake: 0
     mixerGroup: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 47f477966b0247447b70b9050e6aec42, type: 3}
+    volume: 0
+    pitch: 0
+    loop: 0
+    playOnAwake: 0
+    mixerGroup: {fileID: 0}
   DefaultAudioMixer: {fileID: 24300002, guid: 57b9491a8d9dd8c43a3d8c79284f44e9, type: 2}

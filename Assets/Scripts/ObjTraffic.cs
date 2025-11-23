@@ -18,7 +18,8 @@ public class ObjTraffic : MonoBehaviour
         }
         if (particle !=null)
         {
-        Instantiate(particle, transform.position, Quaternion.identity);
+            AudioManager.Main.PlaySound("Crash", 0.2f, Random.Range(1.5f,2.5f));
+            Instantiate(particle, transform.position, Quaternion.identity);
         }
         Destroy(gameObject);
     }

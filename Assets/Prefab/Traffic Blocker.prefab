@@ -105,7 +105,7 @@ MonoBehaviour:
   PointValue: 10
   nitroBoost: 1.5
   slowspeedMultiplier: 0.5
-  particle: {fileID: 0}
+  particle: {fileID: 7518914137496240614, guid: 07c61568d70936444972e4bc43899c0c, type: 3}
 --- !u!61 &2474745576895729480
 BoxCollider2D:
   m_ObjectHideFlags: 0

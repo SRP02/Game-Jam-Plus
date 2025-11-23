@@ -197,6 +197,50 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.4978515, y: 0.21452698}
   m_EdgeRadius: 0
+--- !u!1 &222904104
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 222904105}
+  - component: {fileID: 222904106}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &222904105
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 222904104}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2072941360}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &222904106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 222904104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb38ce7b0aec4a24b87e38ab368a5275, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &269718005 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3938690970337232626, guid: 5930b439d0861ba4395611be3906d4ab, type: 3}
@@ -1278,6 +1322,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7873760849939018911, guid: 0c50bb89a417e754cb00ac0f9660dd89, type: 3}
     - target: {fileID: 7489528778816547902, guid: 641941f267331ae4b890118079d37270, type: 3}
+      propertyPath: usePooling
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7489528778816547902, guid: 641941f267331ae4b890118079d37270, type: 3}
       propertyPath: roadColor.b
       value: 0.5169811
       objectReference: {fileID: 0}
@@ -1292,6 +1340,10 @@ PrefabInstance:
     - target: {fileID: 7489528778816547902, guid: 641941f267331ae4b890118079d37270, type: 3}
       propertyPath: curveStrength
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7489528778816547902, guid: 641941f267331ae4b890118079d37270, type: 3}
+      propertyPath: segmentLength
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 7489528778816547902, guid: 641941f267331ae4b890118079d37270, type: 3}
       propertyPath: roadWorldWidth
@@ -1317,6 +1369,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5477256242487797234, guid: 641941f267331ae4b890118079d37270, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1535928511}
+    - targetCorrespondingSourceObject: {fileID: 5477256242487797234, guid: 641941f267331ae4b890118079d37270, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 222904105}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 641941f267331ae4b890118079d37270, type: 3}
 --- !u!1 &1179153706
@@ -2005,7 +2060,7 @@ MonoBehaviour:
   maxActiveTrees: 10000
   treeContainer: {fileID: 1500688321}
   spawnChance: 1
-  usePooling: 1
+  usePooling: 0
 --- !u!1 &1572334619
 GameObject:
   m_ObjectHideFlags: 0
