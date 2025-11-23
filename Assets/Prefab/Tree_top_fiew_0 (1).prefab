@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3220882418708112206}
   - component: {fileID: 6711958047641877150}
+  - component: {fileID: -8644263280900054896}
   m_Layer: 0
   m_Name: Tree_top_fiew_0 (1)
   m_TagString: Untagged
@@ -87,3 +88,63 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &-8644263280900054896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76077020448227052}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShadowGroup: 0
+  m_Priority: 0
+  m_ComponentVersion: 5
+  m_HasRenderer: 1
+  m_UseRendererSilhouette: 1
+  m_CastsShadows: 1
+  m_SelfShadows: 0
+  m_AlphaCutoff: 0.1
+  m_ApplyToSortingLayers: 00000000
+  m_ShapePath:
+  - {x: -0.8388672, y: -0.84262085, z: 0}
+  - {x: -1.0814819, y: -0.4142151, z: 0}
+  - {x: -1.0515137, y: 0.5716553, z: 0}
+  - {x: -0.7451172, y: 0.8988342, z: 0}
+  - {x: -0.11431885, y: 1.0964355, z: 0}
+  - {x: 0.4779663, y: 1.0852051, z: 0}
+  - {x: 0.8725586, y: 0.84259033, z: 0}
+  - {x: 1.1002197, y: 0.5154114, z: 0}
+  - {x: 1.1039429, y: -0.459198, z: 0}
+  - {x: 0.9063721, y: -0.88009644, z: 0}
+  - {x: 0.5753784, y: -1.070221, z: 0}
+  - {x: -0.18554688, y: -1.0964661, z: 0}
+  m_ShapePathHash: -240422219
+  m_InstanceId: 0
+  m_ShadowShape2DComponent: {fileID: 0}
+  m_ShadowShape2DProvider:
+    rid: -2
+  m_ShadowCastingSource: 1
+  m_ShadowMesh:
+    m_Mesh: {fileID: 0}
+    m_LocalBounds:
+      m_Center: {x: 0.011230469, y: -0.000015258789, z: 0}
+      m_Extent: {x: 1.0927124, y: 1.0964508, z: 0}
+    m_EdgeProcessing: 1
+    m_TrimEdge: 0.1
+    m_FlipX: 0
+    m_FlipY: 0
+    m_InitialTrim: 0.1
+  m_CastingOption: 1
+  m_PreviousTrimEdge: 0.1
+  m_PreviousEdgeProcessing: 1
+  m_PreviousShadowCastingSource: 1
+  m_PreviousShadowShape2DSource: {fileID: 6711958047641877150}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

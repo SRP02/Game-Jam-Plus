@@ -926,7 +926,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxSpeed: 8
   acceleration: 8
-  deceleration: 1
+  deceleration: 6
   maxTurnSpeed: 200
   turnAcceleration: 800
   turnDeceleration: 500
@@ -1583,7 +1583,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 12
+  orthographic size: 11.25
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2019,7 +2019,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapRoot: {fileID: 1120698878}
   obstaclePrefabs:
+  - {fileID: 8917921613446575254, guid: 97cd76ab2cf93524e9dfc4c1678f6d18, type: 3}
   - {fileID: 8917921613446575254, guid: d0493bb010937834bb24e0ded0cc51ca, type: 3}
+  - {fileID: 76077020448227052, guid: dd14cb47cc1795440ba3e79b8bf04feb, type: 3}
   minPerSegment: 1
   maxPerSegment: 3
   minSpacing: 4

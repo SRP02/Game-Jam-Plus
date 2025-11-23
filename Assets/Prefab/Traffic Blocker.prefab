@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 2056085474353575368}
   - component: {fileID: 798071799671873954}
   - component: {fileID: 1845101512489911148}
-  - component: {fileID: 6885998163104431782}
-  - component: {fileID: 939979506457326500}
+  - component: {fileID: 2474745576895729480}
+  - component: {fileID: 6012738787301696976}
   m_Layer: 9
-  m_Name: Traffic Cone
+  m_Name: Traffic Blocker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -79,7 +79,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 5924142040332592280, guid: 7be4324b08fc7e6409f40808e1f6b883, type: 3}
+  m_Sprite: {fileID: 2131878589031641478, guid: dff16a37e07fc1e4aa299c0220fbebbc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -106,7 +106,7 @@ MonoBehaviour:
   nitroBoost: 1.5
   slowspeedMultiplier: 0.5
   particle: {fileID: 0}
---- !u!61 &6885998163104431782
+--- !u!61 &2474745576895729480
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -144,15 +144,15 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.25, y: 0.25}
+    oldSize: {x: 0.9375, y: 0.234375}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.25, y: 0.25}
+  m_Size: {x: 0.9375, y: 0.234375}
   m_EdgeRadius: 0
---- !u!114 &939979506457326500
+--- !u!114 &6012738787301696976
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -174,21 +174,21 @@ MonoBehaviour:
   m_AlphaCutoff: 0.1
   m_ApplyToSortingLayers: 00000000
   m_ShapePath:
-  - {x: -0.125, y: -0.125, z: 0}
-  - {x: -0.125, y: 0.125, z: 0}
-  - {x: 0.125, y: 0.125, z: 0}
-  - {x: 0.125, y: -0.125, z: 0}
+  - {x: -0.46875, y: -0.1171875, z: 0}
+  - {x: -0.46875, y: 0.1171875, z: 0}
+  - {x: 0.46875, y: 0.1171875, z: 0}
+  - {x: 0.46875, y: -0.1171875, z: 0}
   m_ShapePathHash: 0
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 798071799671873954}
   m_ShadowShape2DProvider:
-    rid: 8675261619894485173
+    rid: 8675261619894485174
   m_ShadowCastingSource: 2
   m_ShadowMesh:
     m_Mesh: {fileID: 0}
     m_LocalBounds:
       m_Center: {x: 0, y: 0, z: 0}
-      m_Extent: {x: 0.11500549, y: 0.11500549, z: 0}
+      m_Extent: {x: 0.4587555, y: 0.10719299, z: 0}
     m_EdgeProcessing: 1
     m_TrimEdge: 0.01
     m_FlipX: 0
@@ -202,6 +202,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 8675261619894485173
+    - rid: 8675261619894485174
       type: {class: ShadowShape2DProvider_SpriteRenderer, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 

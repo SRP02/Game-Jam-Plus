@@ -142,20 +142,10 @@ public class Car : MonoBehaviour
     }
 
 
-    public static IEnumerator setCarSlow(float speed,float duration)
+    public static void setCarSlow(float speed)
     {
         Car car = FindObjectOfType<Car>();
-        if (car != null && car.rb != null)
-        {
-            float elapsed = 0f;
-            while (elapsed < duration)
-            {
-                car.slowSpeed = speed;
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-            car.slowSpeed=1f;
-        }
+        car.rb.linearVelocity*=speed;
     }
 
     public void HandleNitro()
