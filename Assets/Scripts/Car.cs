@@ -37,6 +37,7 @@ public class Car : MonoBehaviour
     public Image nitroBackBar;
     public DoubleTxt nitroTxt;
     public float flickerRate = 0.2f;
+    [HideInInspector]public float slowSpeed=1f;
 
     [SerializeField] private InputActionReference moveAction;
     [SerializeField] private InputActionReference nitroAction;
@@ -113,7 +114,7 @@ public class Car : MonoBehaviour
         float forwardForce = (forwardSpeed < currentMaxSpeed) ? currentAcceleration : -currentDeceleration;
 
         // Apply forward force (base)
-        rb.AddForce(transform.up * forwardForce, ForceMode2D.Force);
+        rb.AddForce(transform.up * forwardForce * slowSpeed, ForceMode2D.Force);
 
         // Apply nitro boost AFTER base force, using UseNitro which will apply a partial boost if needed
         if (nitroActiveThisFrame)
@@ -146,15 +147,14 @@ public class Car : MonoBehaviour
         Car car = FindObjectOfType<Car>();
         if (car != null && car.rb != null)
         {
-            float originalSpeed = car.rb.linearVelocity.magnitude;
             float elapsed = 0f;
             while (elapsed < duration)
             {
-                car.rb.linearVelocity = car.rb.linearVelocity.normalized * Mathf.Lerp(originalSpeed, speed, elapsed / duration);
+                car.slowSpeed = speed;
                 elapsed += Time.deltaTime;
                 yield return null;
             }
-            car.rb.linearVelocity = car.rb.linearVelocity.normalized * speed;
+            car.slowSpeed=1f;
         }
     }
 
