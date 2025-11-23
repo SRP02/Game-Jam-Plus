@@ -18,7 +18,7 @@ public class Car : MonoBehaviour
     [SerializeField] private float turnDeceleration = 300f;
 
     [Header("Off-road settings")]
-    [Tooltip("Layer(s) considered 'road' � make sure your road GameObjects are on this layer.")]
+    [Tooltip("Layer(s) considered 'road' — make sure your road GameObjects are on this layer.")]
     [SerializeField] private LayerMask roadLayer = 0;
     [Range(0.1f, 1f)][SerializeField] private float offroadSpeedMultiplier = 0.6f;
     [Range(0.1f, 1f)][SerializeField] private float offroadAccelMultiplier = 0.6f;
@@ -37,7 +37,7 @@ public class Car : MonoBehaviour
     public Image nitroBackBar;
     public DoubleTxt nitroTxt;
     public float flickerRate = 0.2f;
-    [HideInInspector]public float slowSpeed=1f;
+    [HideInInspector] public float slowSpeed = 1f;
 
     [SerializeField] private InputActionReference moveAction;
     [SerializeField] private InputActionReference nitroAction;
@@ -45,12 +45,16 @@ public class Car : MonoBehaviour
 
     private Rigidbody2D rb;
 
+    // --- New fields for remembering player's nitro intent ---
+    private bool nitroRequested = false;         // true while player is requesting nitro (holding it)
+    private bool previousNitroPressed = false;   // for edge detection
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
 
-        nitroFrontBar.fillAmount = currentNitro / maxNitro;
-        nitroBackBar.fillAmount = currentNitro / maxNitro;
+        if (nitroFrontBar != null) nitroFrontBar.fillAmount = currentNitro / maxNitro;
+        if (nitroBackBar != null) nitroBackBar.fillAmount = currentNitro / maxNitro;
     }
 
     private void OnEnable()
@@ -75,24 +79,38 @@ public class Car : MonoBehaviour
         Vector2 input = moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
         bool nitroPressed = nitroAction != null && nitroAction.action.ReadValue<float>() > 0.5f;
 
+        // --- NEW: track request / button edge ---
+        if (nitroPressed && !previousNitroPressed)
+        {
+            // button just pressed -> start requesting nitro
+            nitroRequested = true;
+        }
+        else if (!nitroPressed)
+        {
+            // button released -> cancel request
+            nitroRequested = false;
+        }
+        previousNitroPressed = nitroPressed;
+        // ------------------------------------------------
+
         // Check road
         bool onRoad = Physics2D.OverlapPoint(transform.position, roadLayer) != null;
 
-        // Recharge nitro while on road
-
-        // Determine whether nitro should be active this frame (has fuel and button pressed)
-        bool nitroActiveThisFrame = nitroPressed && currentNitro > 0f;
+        // Determine whether nitro should be active this frame:
+        // (activate if the player is requesting nitro and there is fuel)
+        bool nitroActiveThisFrame = nitroRequested && currentNitro > 0f;
 
         if (nitroActiveThisFrame)
         {
             // Show UI flicker/active state
-            nitroTxt.setBackActive(Mathf.FloorToInt(Time.time / 0.1f) % 2 == 0);
+            if (nitroTxt != null) nitroTxt.setBackActive(Mathf.FloorToInt(Time.time / 0.1f) % 2 == 0);
             HandleNitro();
         }
         else
         {
+            // Recharge nitro while on road (only when not actively burning)
             AddNitro(nitroRechargeRate * Time.fixedDeltaTime * (onRoad ? 1f : 0f));
-            nitroTxt.setBackActive(false);
+            if (nitroTxt != null) nitroTxt.setBackActive(false);
         }
 
         // choose multipliers based on ground
@@ -126,13 +144,13 @@ public class Car : MonoBehaviour
         if (rb.linearVelocity.magnitude > currentMaxSpeed)
             rb.linearVelocity = rb.linearVelocity.normalized * currentMaxSpeed;
 
-        // (turning code stays the same...)
+        // (turning code)
         float turnInput = -input.x;
         float targetAngular = turnInput * maxTurnSpeed * (onRoad ? 1f : offroadTurnMultiplier);
         float accel = (Mathf.Approximately(turnInput, 0f) ? turnDeceleration : turnAcceleration) * currentTurnAccelMultiplier;
         rb.angularVelocity = Mathf.MoveTowards(rb.angularVelocity, targetAngular, accel * Time.fixedDeltaTime);
 
-        // score timer handling (keep as before) ...
+        // score timer handling
         scoreTimer += Time.fixedDeltaTime;
         if (scoreTimer >= 1f)
         {
@@ -141,27 +159,31 @@ public class Car : MonoBehaviour
         }
     }
 
-
     public static void setCarSlow(float speed)
     {
         Car car = FindObjectOfType<Car>();
-        car.rb.linearVelocity*=speed;
+        if (car != null && car.rb != null)
+            car.rb.linearVelocity *= speed;
     }
 
     public void HandleNitro()
     {
-        nitroFrontBar.fillAmount = currentNitro/ maxNitro;
-        if (nitroBackBar.fillAmount < nitroFrontBar.fillAmount)
+        if (nitroFrontBar != null) nitroFrontBar.fillAmount = currentNitro / maxNitro;
+
+        if (nitroBackBar != null)
         {
-            nitroBackBar.fillAmount = currentNitro/ maxNitro;
-        }
-        else
-        {
-            nitroBackBar.fillAmount = Mathf.Lerp(
-                nitroBackBar.fillAmount,
-                currentNitro / maxNitro,
-                Time.deltaTime * catchUpSpeed
-            );
+            if (nitroBackBar.fillAmount < nitroFrontBar.fillAmount)
+            {
+                nitroBackBar.fillAmount = currentNitro / maxNitro;
+            }
+            else
+            {
+                nitroBackBar.fillAmount = Mathf.Lerp(
+                    nitroBackBar.fillAmount,
+                    currentNitro / maxNitro,
+                    Time.deltaTime * catchUpSpeed
+                );
+            }
         }
     }
 
@@ -170,6 +192,7 @@ public class Car : MonoBehaviour
         currentNitro = Mathf.Clamp(currentNitro + amount, 0f, maxNitro);
         HandleNitro();
     }
+
     public bool UseNitro()
     {
         // How much nitro we want to consume this physics frame

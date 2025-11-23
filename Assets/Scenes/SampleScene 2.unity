@@ -1274,6 +1274,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: 'Manager '
       objectReference: {fileID: 0}
+    - target: {fileID: 2096791520684536740, guid: 641941f267331ae4b890118079d37270, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3489694531003968112, guid: 641941f267331ae4b890118079d37270, type: 3}
       propertyPath: scoreTxt
       value: 

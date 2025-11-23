@@ -45,10 +45,13 @@ public class MapManager : MonoBehaviour
     // --- FIXED VARIABLES ---
     // Stores the second-to-last control point of the previous segment (P0 for the next spline)
     private Vector3 prevSegmentSecondToLastControlPoint;
-    // Stores the last sample point for perfect vertex snapping between meshes
+    // Stores the last sample point for perfect vertex snapping between meshes (world space)
     private Vector3 prevSegmentLastSample;
     private bool hasPrevSegment = false;
     // ---------------------
+
+    // NEW: flag to make only the very first segment straight
+    private bool firstSegment = true;
 
     private class RoadSegment
     {
@@ -123,16 +126,28 @@ public class MapManager : MonoBehaviour
         {
             float t = i / (float)(controlPoints - 1);
             float y = Mathf.Lerp(startY, endY, t);
-            float noise = Mathf.PerlinNoise(noiseSeed, y * 0.1f) - 0.5f;
-            float x = noise * curveStrength;
-            control[i] = new Vector3(x, y, 0f);
+
+            float x;
+
+            // FIRST SEGMENT IS ALWAYS STRAIGHT
+            if (firstSegment)
+            {
+                x = 0f; // no curve at all for the first generated segment
+            }
+            else
+            {
+                float noise = Mathf.PerlinNoise(noiseSeed, y * 0.1f) - 0.5f;
+                x = noise * curveStrength;
+            }
+
+            control[i] = new Vector3(x, y, 0f); // control points in world space (relative Y)
         }
 
         List<Vector3> samples = new List<Vector3>();
         for (int i = 0; i < controlPoints - 1; i++)
         {
             Vector3 p0;
-            // FIX: Use the stored Control Point for Catmull-Rom continuity
+            // Use previous segment's control for Catmull-Rom continuity
             if (i == 0)
             {
                 if (hasPrevSegment)
@@ -167,10 +182,9 @@ public class MapManager : MonoBehaviour
         if (hasPrevSegment && samples.Count > 0)
             samples[0] = prevSegmentLastSample;
 
-        // --- UPDATE STATE FOR NEXT SEGMENT ---
+        // --- UPDATE STATE FOR NEXT SEGMENT (store world-space values) ---
         if (controlPoints >= 2)
         {
-            // Store the second-to-last control point for the next segment's P0
             prevSegmentSecondToLastControlPoint = control[controlPoints - 2];
         }
 
@@ -188,12 +202,19 @@ public class MapManager : MonoBehaviour
         {
             go = PoolingManager.Instance.Spawn(roadSegmentPrefab, Vector3.zero, Quaternion.identity, transform, true);
             spawnedFromPool = true;
+            // ensure parent and local transform do not keep stale world offsets
+            go.transform.SetParent(transform, false);
+            go.transform.localPosition = Vector3.zero;
+            go.transform.localRotation = Quaternion.identity;
+            go.transform.localScale = Vector3.one;
         }
         else
         {
             go = new GameObject("RoadSegment");
-            go.transform.parent = transform;
+            // attach cleanly to MapManager (no worldPositionStays)
+            go.transform.SetParent(transform, false);
             go.transform.localPosition = Vector3.zero;
+            go.transform.localRotation = Quaternion.identity;
         }
 
         MeshFilter mf = go.GetComponent<MeshFilter>();
@@ -232,6 +253,9 @@ public class MapManager : MonoBehaviour
         // Pull the UVs in slightly from the edge (0.0 and 1.0) to prevent texture bleeding.
         float uvInset = 0.01f;
 
+        // Convert to local space relative to the parent transform to avoid gaps caused by world/local mismatches
+        Vector3 parentPos = transform.position;
+
         for (int i = 0; i < n; i++)
         {
             Vector3 p = samples[i];
@@ -257,8 +281,12 @@ public class MapManager : MonoBehaviour
 
             Vector3 normal = new Vector3(-tangent.y, tangent.x, 0f).normalized;
 
-            verts[i * 2 + 0] = p + normal * halfWidth;
-            verts[i * 2 + 1] = p - normal * halfWidth;
+            // IMPORTANT: store vertices in local space (relative to MapManager transform)
+            Vector3 leftWorld = p + normal * halfWidth;
+            Vector3 rightWorld = p - normal * halfWidth;
+
+            verts[i * 2 + 0] = leftWorld - parentPos;
+            verts[i * 2 + 1] = rightWorld - parentPos;
 
             float v = tileTextureAlongLength ? cumLen[i] * textureRepeatPerUnit : cumLen[i] / totalLen;
 
@@ -315,32 +343,31 @@ public class MapManager : MonoBehaviour
 
         for (int i = 0; i < n; i++)
         {
-            Vector3 left = verts[i * 2 + 0];
-            Vector3 right = verts[i * 2 + 1];
+            // verts are already in MapManager-local space; collider expects local space relative to same GameObject.
+            Vector3 leftLocal = verts[i * 2 + 0];
+            Vector3 rightLocal = verts[i * 2 + 1];
 
-            Vector3 sideNormal = (left - right).normalized;
+            // compute side normal in local space
+            Vector3 sideNormal = (leftLocal - rightLocal).normalized;
 
-            left += sideNormal * colliderSidePadding;
-            right -= sideNormal * colliderSidePadding;
+            Vector3 leftPadded = leftLocal + sideNormal * colliderSidePadding;
+            Vector3 rightPadded = rightLocal - sideNormal * colliderSidePadding;
 
-            colliderPoints[i] = new Vector2(left.x, left.y);
-            colliderPoints[n + (n - 1 - i)] = new Vector2(right.x, right.y);
+            colliderPoints[i] = new Vector2(leftPadded.x, leftPadded.y);
+            colliderPoints[n + (n - 1 - i)] = new Vector2(rightPadded.x, rightPadded.y);
         }
 
         poly.points = colliderPoints;
 
-        if (spawnedFromPool)
-        {
-            go.transform.SetParent(transform, true);
-            go.transform.localPosition = Vector3.zero;
-        }
-        else
-        {
-            go.name = "RoadSegment";
-        }
+        // Give the GameObject a clear name (avoid confusion with pooled instances)
+        go.name = "RoadSegment";
 
         segments.Add(new RoadSegment { go = go, startY = startY, endY = endY });
         lastY = endY;
+
+        // After the first generation, mark that subsequent segments should be curved
+        if (firstSegment)
+            firstSegment = false;
     }
 
     private Vector3 CatmullRom(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
