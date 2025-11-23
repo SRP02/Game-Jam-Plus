@@ -21,7 +21,10 @@ public class Diaper : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        car.OnGameOver();
+        if (collision.CompareTag("Player"))
+        {
+            car.OnGameOver();
+        }
     }
     private void FixedUpdate()
     {
