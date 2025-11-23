@@ -1,6 +1,5 @@
 using System.Collections;
 using TMPro;
-using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -13,7 +12,7 @@ public class UiGameScript : MonoBehaviour
     public Material Material;
     public TMP_Text highScoreText;   // UI element to show the saved high score (e.g. "High Score: 123")
     public TMP_Text finalScoreText;  // UI element to show the final score for this run
-    public ScoreManager scoreManager; // your existing score manager; must expose an int Score or similar
+    public ScoreManager scoreManager; // assign in inspector (should reference the ScoreManager in scene)
 
     private void Start()
     {
@@ -32,7 +31,9 @@ public class UiGameScript : MonoBehaviour
 
     private IEnumerator setGame()
     {
-        AudioManager.Main.PlaySound("blh", 0.5f, 0.9f, true);
+        // play start sound (ensure AudioManager.Main exists)
+        if (AudioManager.Main != null) AudioManager.Main.PlaySound("blh", 0.5f, 0.9f, true);
+
         if (Animator != null) Animator.Play("Start");
         if (car != null) car.SetActive(true);
         yield return new WaitForSeconds(waitTime);
@@ -44,64 +45,17 @@ public class UiGameScript : MonoBehaviour
     /// </summary>
     public void StopGame()
     {
-        AudioManager.Main.PauseOrStop("blh");
+        if (AudioManager.Main != null) AudioManager.Main.PauseOrStop("blh");
 
         int finalScore = 0;
 
         if (scoreManager != null)
         {
-            // try to read an integer score. Adjust to your ScoreManager API.
-            // I assume scoreManager has an int field/property called 'scoreTxt' or 'score'.
-            // If it is a string (like "123"), try parsing it.
-            // Example adaptions below:
-#if UNITY_EDITOR
-            // Debug help
-#endif
-
-            // Prefer integer property if available:
-            var scoreProp = scoreManager.GetType().GetProperty("score");
-            if (scoreProp != null)
-            {
-                object val = scoreProp.GetValue(scoreManager);
-                if (val is int i) finalScore = i;
-                else if (val is float f) finalScore = Mathf.RoundToInt(f);
-            }
-            else
-            {
-                // fallback: check for public int field named 'score'
-                var field = scoreManager.GetType().GetField("score");
-                if (field != null)
-                {
-                    object val = field.GetValue(scoreManager);
-                    if (val is int i) finalScore = i;
-                    else if (val is float f) finalScore = Mathf.RoundToInt(f);
-                }
-                else
-                {
-                    // ultimate fallback: string 'scoreTxt' (your original usage)
-                    try
-                    {
-                        var propTxt = scoreManager.GetType().GetProperty("scoreTxt");
-                        if (propTxt != null)
-                        {
-                            object val = propTxt.GetValue(scoreManager);
-                            if (val != null)
-                                int.TryParse(val.ToString(), out finalScore);
-                        }
-                        else
-                        {
-                            var fieldTxt = scoreManager.GetType().GetField("scoreTxt");
-                            if (fieldTxt != null)
-                            {
-                                object val = fieldTxt.GetValue(scoreManager);
-                                if (val != null)
-                                    int.TryParse(val.ToString(), out finalScore);
-                            }
-                        }
-                    }
-                    catch { /* ignore reflection errors */ }
-                }
-            }
+            finalScore = scoreManager.Score;
+        }
+        else
+        {
+            Debug.LogWarning("UiGameScript.StopGame: scoreManager not assigned in inspector.");
         }
 
         // update final score UI
@@ -109,19 +63,17 @@ public class UiGameScript : MonoBehaviour
             finalScoreText.text = "Final Score: " + finalScore;
 
         // try to save to highscore manager
-        if (HighScoreManager.Instance.TrySetBestScore(finalScore))
-        {
-            // new highscore!
-            if (highScoreText != null)
-                highScoreText.text = "High Score: " + HighScoreManager.Instance.GetBestScore();
+        bool isNewRecord = HighScoreManager.Instance.TrySetBestScore(finalScore);
 
-            // Optional: play a "new record" animation or sound here
-        }
-        else
+        // display updated best
+        if (highScoreText != null)
+            highScoreText.text = "High Score: " + HighScoreManager.Instance.GetBestScore();
+
+        if (isNewRecord)
         {
-            // no new highscore, still display best
-            if (highScoreText != null)
-                highScoreText.text = "High Score: " + HighScoreManager.Instance.GetBestScore();
+            // optional: play new-record feedback
+            Debug.Log("New High Score! " + finalScore);
+            // e.g. Animator.Play("NewRecord"); or play a sound
         }
 
         if (Animator != null) Animator.Play("End");
@@ -130,7 +82,6 @@ public class UiGameScript : MonoBehaviour
     public void Restart()
     {
         Time.timeScale = 1f;
-
         Scene active = SceneManager.GetActiveScene();
         SceneManager.LoadScene(active.buildIndex);
     }

@@ -41,10 +41,8 @@ public class HighScoreManager : MonoBehaviour
         Load();
     }
 
-    /// <summary>Return the currently saved best score.</summary>
     public int GetBestScore() => bestScore;
 
-    /// <summary>Save if score is better than current best. Returns true if saved (new record).</summary>
     public bool TrySetBestScore(int score)
     {
         if (score > bestScore)
@@ -97,7 +95,6 @@ public class HighScoreManager : MonoBehaviour
         }
     }
 
-    /// <summary>Remove saved high score (for debug/testing).</summary>
     public void ResetHighScore()
     {
         bestScore = 0;

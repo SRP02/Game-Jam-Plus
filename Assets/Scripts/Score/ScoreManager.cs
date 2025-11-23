@@ -3,9 +3,11 @@ using UnityEngine;
 public class ScoreManager : MonoBehaviour
 {
     public DoubleTxt scoreTxt;
-    public DoubleTxt highScoreTxt;
-    [SerializeField]private int score = 0;
+    [SerializeField] private int score = 0;
     public static ScoreManager instance;
+
+    // Expose the current score as a read-only property for other scripts
+    public int Score => score;
 
     void Awake()
     {
@@ -23,8 +25,16 @@ public class ScoreManager : MonoBehaviour
         StyleController.main.AddPoints(amount);
         updateTxt(scoreTxt, score.ToString());
     }
-    private void updateTxt(DoubleTxt dt,string text)
+
+    private void updateTxt(DoubleTxt dt, string text)
     {
-        dt.SetText(text);
+        if (dt != null) dt.SetText(text);
+    }
+
+    // Optional: public setter if you ever want to set score directly
+    public void SetScore(int newScore)
+    {
+        score = newScore;
+        updateTxt(scoreTxt, score.ToString());
     }
 }

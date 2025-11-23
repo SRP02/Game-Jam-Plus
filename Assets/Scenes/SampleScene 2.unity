@@ -635,7 +635,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 477702674}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1189310083}
+        m_TargetAssemblyTypeName: UiGameScript, Assembly-CSharp
+        m_MethodName: Restart
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &477702674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -793,7 +805,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 301.0421, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &621582344
 MonoBehaviour:
@@ -929,7 +941,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 101}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 301.0421, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &631942892
 MonoBehaviour:
@@ -1030,6 +1042,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 631942890}
   m_CullTransparentMesh: 1
+--- !u!1 &706341362 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3634021075026811347, guid: 641941f267331ae4b890118079d37270, type: 3}
+  m_PrefabInstance: {fileID: 1153748587}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &881877439
 GameObject:
   m_ObjectHideFlags: 0
@@ -1639,7 +1656,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5477256242487797234, guid: 641941f267331ae4b890118079d37270, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1189310082}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3634021075026811347, guid: 641941f267331ae4b890118079d37270, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2077305987}
   m_SourcePrefab: {fileID: 100100000, guid: 641941f267331ae4b890118079d37270, type: 3}
 --- !u!1 &1179153706
 GameObject:
@@ -1769,7 +1789,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fe498a64a2c0cb4e8f22bada110d24d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camera: {fileID: 0}
   car: {fileID: 923625292}
   diaper: {fileID: 881877439}
   waitTime: 5
@@ -2878,10 +2897,22 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3489694531003968112, guid: 641941f267331ae4b890118079d37270, type: 3}
   m_PrefabInstance: {fileID: 1153748587}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 706341362}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bd5280bc10348534faa183a7d45f04ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2077305987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706341362}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d54a3dd6b76a0d1499114d46a2206d65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!222 &80577130955681426
