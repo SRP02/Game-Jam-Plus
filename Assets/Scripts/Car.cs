@@ -52,6 +52,7 @@ public class Car : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        AudioManager.Main.PlaySound("Engine", 0.2f, 0.5f, true);
 
         if (nitroFrontBar != null) nitroFrontBar.fillAmount = currentNitro / maxNitro;
         if (nitroBackBar != null) nitroBackBar.fillAmount = currentNitro / maxNitro;

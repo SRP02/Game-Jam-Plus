@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0735da9c0eb7f342b891904ecab5df5, type: 3}
+  m_Name: Audios
+  m_EditorClassIdentifier: 
+  AudioClips:
+  - clip: {fileID: 8300000, guid: 26e2a40598d374747888194f41c6b6a7, type: 3}
+    volume: 0
+    pitch: 0
+    loop: 0
+    playOnAwake: 0
+    mixerGroup: {fileID: 0}
+  - clip: {fileID: 8300000, guid: f920614d26052fd44a547a90109331e5, type: 3}
+    volume: 0
+    pitch: 0
+    loop: 0
+    playOnAwake: 0
+    mixerGroup: {fileID: 0}
+  DefaultAudioMixer: {fileID: 24300002, guid: 57b9491a8d9dd8c43a3d8c79284f44e9, type: 2}
