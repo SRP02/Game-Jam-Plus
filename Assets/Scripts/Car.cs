@@ -74,29 +74,36 @@ public class Car : MonoBehaviour
         Vector2 input = moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
         bool nitroPressed = nitroAction != null && nitroAction.action.ReadValue<float>() > 0.5f;
 
-        if (nitroPressed)
-        {
-            HandleNitro();
-            UseNitro();
-            nitroTxt.setBackActive(Mathf.FloorToInt(Time.time / 0.1f) % 2 == 0);
-        }
-
-        float turnInput = -input.x;
-
-        // check if car is on the road (checks a point at the car's position)
+        // Check road
         bool onRoad = Physics2D.OverlapPoint(transform.position, roadLayer) != null;
+
+        // Recharge nitro while on road
+        AddNitro(nitroRechargeRate * Time.fixedDeltaTime * (onRoad ? 1f : 0f));
+
+        // Determine whether nitro should be active this frame (has fuel and button pressed)
+        bool nitroActiveThisFrame = nitroPressed && currentNitro > 0f;
+
+        if (nitroActiveThisFrame)
+        {
+            // Show UI flicker/active state
+            nitroTxt.setBackActive(Mathf.FloorToInt(Time.time / 0.1f) % 2 == 0);
+            HandleNitro();
+        }
+        else
+        {
+            nitroTxt.setBackActive(false);
+        }
 
         // choose multipliers based on ground
         float currentMaxSpeed = maxSpeed * (onRoad ? 1f : offroadSpeedMultiplier);
         float currentAcceleration = acceleration * (onRoad ? 1f : offroadAccelMultiplier);
         float currentDeceleration = deceleration * (onRoad ? 1f : offroadAccelMultiplier); // use same reduction for decel
         float currentTurnAccelMultiplier = (onRoad ? 1f : offroadTurnMultiplier);
-        AddNitro(nitroRechargeRate * Time.fixedDeltaTime * (onRoad ? 1f : 0f));
-        scoreTimer += Time.fixedDeltaTime;
-        if (scoreTimer >= 1f)
+
+        // If nitro is active, temporarily increase allowable top speed so boost can take effect
+        if (nitroActiveThisFrame)
         {
-            scoreTimer = 0f; // reset timer
-            ScoreManager.instance.AddScore(1 * (onRoad ? 1 : 0)); // tambah 1 poin per detik di jalan
+            currentMaxSpeed *= nitroBoost; // allow higher top speed while boosting
         }
 
         // forward speed along car's forward vector
@@ -104,19 +111,35 @@ public class Car : MonoBehaviour
 
         // apply forward/backward force based on whether we're under/over max
         float forwardForce = (forwardSpeed < currentMaxSpeed) ? currentAcceleration : -currentDeceleration;
-        // apply force once (bug fix: your original code added force twice)
+
+        // Apply forward force (base)
         rb.AddForce(transform.up * forwardForce, ForceMode2D.Force);
 
-        // clamp velocity to currentMaxSpeed
+        // Apply nitro boost AFTER base force, using UseNitro which will apply a partial boost if needed
+        if (nitroActiveThisFrame)
+        {
+            UseNitro(); // now UseNitro will only apply the boost for available nitro
+        }
+
+        // clamp velocity to currentMaxSpeed (which already accounts for nitroActiveThisFrame)
         if (rb.linearVelocity.magnitude > currentMaxSpeed)
             rb.linearVelocity = rb.linearVelocity.normalized * currentMaxSpeed;
 
-        // turning: scale target angular speed when offroad and reduce angular accel
+        // (turning code stays the same...)
+        float turnInput = -input.x;
         float targetAngular = turnInput * maxTurnSpeed * (onRoad ? 1f : offroadTurnMultiplier);
-
         float accel = (Mathf.Approximately(turnInput, 0f) ? turnDeceleration : turnAcceleration) * currentTurnAccelMultiplier;
         rb.angularVelocity = Mathf.MoveTowards(rb.angularVelocity, targetAngular, accel * Time.fixedDeltaTime);
+
+        // score timer handling (keep as before) ...
+        scoreTimer += Time.fixedDeltaTime;
+        if (scoreTimer >= 1f)
+        {
+            scoreTimer = 0f;
+            ScoreManager.instance.AddScore(1 * (onRoad ? 1 : 0));
+        }
     }
+
 
     public static IEnumerator setCarSlow(float speed,float duration)
     {
@@ -159,12 +182,36 @@ public class Car : MonoBehaviour
     }
     public bool UseNitro()
     {
-        if (currentNitro > 0f)
+        // How much nitro we want to consume this physics frame
+        float desiredBurn = nitroBurnRate * Time.fixedDeltaTime;
+
+        if (currentNitro <= 0f)
         {
-            currentNitro -= nitroBurnRate * Time.fixedDeltaTime;
-            rb.AddForce(transform.up * acceleration * nitroBoost, ForceMode2D.Force);
-            return true;
+            currentNitro = 0f;
+            return false;
         }
-        return false;
+
+        // Consume up to desiredBurn, but allow partial consumption if not enough nitro remains
+        float actualBurn = Mathf.Min(currentNitro, desiredBurn);
+        currentNitro -= actualBurn;
+
+        // Calculate a scalar [0..1] representing how much boost to apply this frame
+        float burnRatio = (desiredBurn > 0f) ? (actualBurn / desiredBurn) : 0f;
+
+        if (burnRatio <= 0f)
+        {
+            // Nothing to apply
+            currentNitro = Mathf.Max(0f, currentNitro);
+            return false;
+        }
+
+        // Apply boost scaled by burnRatio so if nitro runs out mid-frame we still get the remaining push
+        float boostForce = acceleration * nitroBoost * burnRatio;
+        rb.AddForce(transform.up * boostForce, ForceMode2D.Force);
+
+        // Update UI
+        HandleNitro();
+
+        return true;
     }
 }
