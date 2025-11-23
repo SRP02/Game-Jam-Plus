@@ -4,7 +4,7 @@ public class ScoreManager : MonoBehaviour
 {
     public DoubleTxt scoreTxt;
     public DoubleTxt highScoreTxt;
-    private int score = 0;
+    [SerializeField]private int score = 0;
     public static ScoreManager instance;
 
     void Awake()

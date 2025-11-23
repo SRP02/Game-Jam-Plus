@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -28,13 +29,18 @@ public class Car : MonoBehaviour
     public float nitroBoost = 1.5f;
     public float nitroBurnRate = 15f;
     public float maxNitro = 25f;
-    public Image nitroFrontBar;
-    public Image nitroBackBar;
     public float catchUpDelay = 0.5f;
     public float catchUpSpeed = 5f;
+    public float nitroRechargeRate = 1f;
+    [Header("Nitro Ui")]
+    public Image nitroFrontBar;
+    public Image nitroBackBar;
+    public DoubleTxt nitroTxt;
+    public float flickerRate = 0.2f;
 
     [SerializeField] private InputActionReference moveAction;
     [SerializeField] private InputActionReference nitroAction;
+    private float scoreTimer = 0f;
 
     private Rigidbody2D rb;
 
@@ -67,6 +73,7 @@ public class Car : MonoBehaviour
         {
             HandleNitro();
             UseNitro();
+            nitroTxt.setBackActive(Mathf.FloorToInt(Time.time / 0.1f) % 2 == 0);
         }
 
         float turnInput = -input.x;
@@ -79,6 +86,13 @@ public class Car : MonoBehaviour
         float currentAcceleration = acceleration * (onRoad ? 1f : offroadAccelMultiplier);
         float currentDeceleration = deceleration * (onRoad ? 1f : offroadAccelMultiplier); // use same reduction for decel
         float currentTurnAccelMultiplier = (onRoad ? 1f : offroadTurnMultiplier);
+        AddNitro(nitroRechargeRate * Time.fixedDeltaTime * (onRoad ? 1f : 0f));
+        scoreTimer += Time.fixedDeltaTime;
+        if (scoreTimer >= 1f)
+        {
+            scoreTimer = 0f; // reset timer
+            ScoreManager.instance.AddScore(1 * (onRoad ? 1 : 0)); // tambah 1 poin per detik di jalan
+        }
 
         // forward speed along car's forward vector
         float forwardSpeed = Vector2.Dot(rb.linearVelocity, transform.up);
@@ -136,6 +150,7 @@ public class Car : MonoBehaviour
     public void AddNitro(float amount)
     {
         currentNitro = Mathf.Clamp(currentNitro + amount, 0f, maxNitro);
+        HandleNitro();
     }
     public bool UseNitro()
     {

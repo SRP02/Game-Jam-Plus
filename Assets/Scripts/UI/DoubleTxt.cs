@@ -75,4 +75,22 @@ public class DoubleTxt : MonoBehaviour
 
         _textContent.color = color;
     }
+
+    public void SetBackColor(Color c)
+    {
+        if (_textEffect == null || _textContent == null)
+        {
+            ReferenceTexts();
+        }
+
+        _textEffect.color = c;
+    }
+    public void setBackActive(bool active)
+    {
+        if (_textEffect == null || _textContent == null)
+        {
+            ReferenceTexts();
+        }
+        _textEffect.enabled = active;
+    }
 }

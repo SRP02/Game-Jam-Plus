@@ -13,7 +13,6 @@ public class StyleController : MonoBehaviour
     public Slider CountdownTimer;
     public Slider CountdownScore;
 
-    [Header("Style Ranks (urutan dari terendah ke tertinggi: E → D → C → B → A)")]
     public StyleRank[] StyleRanks;
 
     [Header("Scoring Settings")]
@@ -54,7 +53,6 @@ public class StyleController : MonoBehaviour
         else
         {
             ResetMeter();
-            setActive(false);
         }
 
         if (currentPoints <= 0)
@@ -118,13 +116,12 @@ public class StyleController : MonoBehaviour
             {
                 StartCoroutine(fadeOutTransition(transitionSpeed));
             }
-
-            StyleMeterPanel.SetActive(value);
         }
     }
         
     private IEnumerator fadeInTransition(float speed)
     {
+        StyleMeterPanel.SetActive(true);
         while (transitionValue < 1f)
         {
             transitionValue += Time.deltaTime * speed;
@@ -132,6 +129,10 @@ public class StyleController : MonoBehaviour
             BottomCorner.fillAmount = transitionValue;
             yield return null;
         }
+        transitionValue = 1f;
+        TopCorner.fillAmount = 1f;
+        BottomCorner.fillAmount = 1f;
+
     }
 
     private IEnumerator fadeOutTransition(float speed)
@@ -143,6 +144,11 @@ public class StyleController : MonoBehaviour
             BottomCorner.fillAmount = transitionValue;
             yield return null;
         }
+        transitionValue = 0f;
+        TopCorner.fillAmount = 0f;
+        BottomCorner.fillAmount = 0f;
+
+        StyleMeterPanel.SetActive(false);
     }
 
     bool isActive()
@@ -157,9 +163,9 @@ public class StyleController : MonoBehaviour
 
     public void ResetMeter()
     {
+        setActive(false);
         currentPoints = 0;
         currentRankIndex = -1;
-
     }
 
     private void OnRankChanged(StyleRank newRank)
@@ -169,7 +175,7 @@ public class StyleController : MonoBehaviour
         StylemeterTitleTxt.SetText(newRank.BigStyleName);
         StylemeterDescTxt.SetText(newRank.SmallStyleName);
         ScoreMult.SetText($"x{newRank.Multiplier:F1}");
-        StylemeterTitleTxt.SetColor(newRank.Color);
+        StylemeterTitleTxt.SetBackColor(newRank.Color);
     }
     public int getCurrentPointsNeeded()
     {
