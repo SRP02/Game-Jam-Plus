@@ -79,7 +79,6 @@ public class Car : MonoBehaviour
         bool onRoad = Physics2D.OverlapPoint(transform.position, roadLayer) != null;
 
         // Recharge nitro while on road
-        AddNitro(nitroRechargeRate * Time.fixedDeltaTime * (onRoad ? 1f : 0f));
 
         // Determine whether nitro should be active this frame (has fuel and button pressed)
         bool nitroActiveThisFrame = nitroPressed && currentNitro > 0f;
@@ -92,6 +91,7 @@ public class Car : MonoBehaviour
         }
         else
         {
+            AddNitro(nitroRechargeRate * Time.fixedDeltaTime * (onRoad ? 1f : 0f));
             nitroTxt.setBackActive(false);
         }
 
