@@ -9,7 +9,7 @@ public class Diaper : MonoBehaviour
     public float maxSpeed = 8f;          // speed when far away
     public float accelerateDistance = 3f; // if further than this → speed up
     public float acceleration = 5f;      // how fast it blends to higher speed
-
+    public UiGameScript uiGameScript;
     private Rigidbody2D rb;
     private Car car;
 
@@ -24,6 +24,9 @@ public class Diaper : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             car.OnGameOver();
+            uiGameScript.StopGame();
+            AudioManager.Main.PlaySound("Crash", 0.2f, 0.5f);
+            AudioManager.Main.PauseOrStop("blh");
         }
     }
     private void FixedUpdate()
